@@ -1,5 +1,16 @@
 <script setup lang="ts">
-import { ref } from "vue";
+import {
+  onActivated,
+  onBeforeMount,
+  onBeforeUnmount,
+  onBeforeUpdate,
+  onDeactivated,
+  onErrorCaptured,
+  onMounted,
+  onUnmounted,
+  onUpdated,
+  ref,
+} from "vue";
 
 defineProps<{
   title: String;
@@ -24,8 +35,39 @@ const removeTodo = (id: number) => {
   todos.value = todos.value.filter((todo) => todo.id !== id);
 };
 
+const formHandler = () => {
+  alert(`User Fulllname: ${fullname.value}`);
+};
+
 const bindLink = "https://vuejs.org/";
 const count = ref(0);
+
+const fullname = ref("");
+
+// Lifecycle Methods
+// onBeforeMount;
+// onMounted;
+// onBeforeUpdate;
+// onUpdated;
+// onBeforeUnmount;
+// onUnmounted;
+// onActivated;
+// onDeactivated;
+// onErrorCaptured;
+
+const posts = ref<{ body: string; title: string }[]>([]);
+
+const fetchPosts = async () => {
+  try {
+    const res = await fetch("https://jsonplaceholder.typicode.com/posts");
+    const data = await res.json();
+    posts.value = data;
+  } catch (err) {
+    alert("Something went wrong");
+  }
+};
+
+onMounted(fetchPosts);
 </script>
 
 <template>
@@ -37,6 +79,29 @@ const count = ref(0);
     <p v-if="userStatus === 'active'">User is active</p>
     <p v-else-if="userStatus === 'inactive'">User is inactive</p>
     <p v-else>User status is unknown</p>
+
+    <form
+      @submit.prevent="formHandler"
+      class="mt-4 flex items-center gap-4 just"
+    >
+      <div class="flex items-center gap-4">
+        <label for="name" class="">Full Name</label>
+        <input
+          type="text"
+          placeholder="Enter Full name..."
+          name="name"
+          v-model="fullname"
+          class="bg-white/10 px-3 py-1.5 rounded-md"
+        />
+      </div>
+      <button
+        type="submit"
+        class="bg-red-400 text-sm white px-2 py-2 rounded-md mt-2 cursor-pointer"
+      >
+        Submit form
+      </button>
+      <p>Username is {{ fullname }}</p>
+    </form>
 
     <!-- Looping -->
     <div class="mt-4 w-full max-w-2xl">
@@ -101,6 +166,18 @@ const count = ref(0);
           Count Down
         </button>
       </div>
+    </div>
+  </div>
+
+  <div
+    class="overflow-x-hidden py-10 flex items-center flex-wrap gap-4 justify-between"
+  >
+    <div
+      class="bg-neutral-900 rounded-lg p-4 max-w-md w-full"
+      v-for="post in posts"
+    >
+      <p class="text-lg font-semibold line-clamp-1 mb-2">{{ post.title }}</p>
+      <p class="text-sm line-clamp-2">{{ post.body }}</p>
     </div>
   </div>
 </template>
